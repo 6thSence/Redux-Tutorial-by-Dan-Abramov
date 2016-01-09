@@ -13,7 +13,7 @@
   </head>
   <body>
     <div id="content"></div>
-    <script type="text/babel" src="script.js"></script>
+    
     <script type="text/babel">
 		const counter = (state = 0, action) => {
 			switch (action.type) {
@@ -28,11 +28,15 @@
 		const { createStore } = Redux;
 		const store = createStore(counter);
 
-		console.log(store.getState());
+		const render = () => {
+			document.body.innerText = store.getState();
+		}
+		store.subscribe(render);
+		document.body.innerText = 'Click on document!';
 
-		store.dispatch({ type: 'INCREMENT' });
-
-		console.log(store.getState());
+		document.addEventListener('click', () => {
+			store.dispatch({ type: 'INCREMENT' });
+		})
     </script>
   </body>
 </html>
