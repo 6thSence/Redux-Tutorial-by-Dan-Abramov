@@ -52,89 +52,69 @@
 			}
 		};
 
-		const testAddTodo = () => {
-			const stateBefore = [];
-			const action = {
-				type: 'ADD_TODO',
-				id: 0,
-				text: 'Learn Redux'
-			};
-			const stateAfter = [
-				{
-					id: 0,
-					text: 'Learn Redux',
-					completed: false
-				}
-			];
+		const visibilityFilter = (
+			state = 'SHOW_ALL',
+			action
+			) => {
+			switch (action.typw) {
+				case 'SET_VISIBILITY_FILTER':
+					return action.filter;
+				default:
+					return state;
+			}
+		};
 
-			deepFreeze(stateBefore);
-			deepFreeze(action);
+		const { combineReducers } = Redux;
+		const todoApp = combineReducers({
+			todos,
+			visibilityFilter
+		});
+		const { createStore } = Redux;
+		const store = createStore(todoApp);
 
+		const { Component } = React;
 
-			expect(
-				todos(stateBefore, action)
-				).toEqual(stateAfter);
-
+		let nextTodoId = 0;
+		class TodoApp extends Component {
+			render () {
+				return (
+					<div>
+						<input ref={node => {
+							this.input = node;
+						}} />
+						<button onClick={() => {
+							store.dispatch({
+								type: 'ADD_TODO',
+								text: this.input.value,
+								id: nextTodoId++
+							});
+						this.input.value = '';
+						}}>
+						Add Todo
+						</button>
+						<ul>
+						{this.props.todos.map(todo =>
+							<li key={todo.id}>
+								{todo.text}
+							</li>	
+						)}
+						</ul>
+					</div>
+					)
+			}
 		}
 
-		const testToggleToso = () => {
-			const stateBefore = [
-			{
-				id: 0,
-				text: 'Learn Redux',
-				conmpleted: false
-			},
-			{
-				id: 1,
-				text: 'Go shopping',
-				conmpleted: false
-			}
-		];
-		const action = {
-			type: 'TOGGLE_TODO',
-			id: 1
-		};
-		const stateAfter = () => [
-			{
-				id: 0,
-				text: 'Go shopping',
-				conmpleted: false
-			},
-			{
-				id: 1,
-				text: 'Learn Redux',
-				conmpleted: true
-			}
-		];
-
-
-		deepFreeze(stateBefore);
-		deepFreeze(action);
-
-		expect(
-			todos(stateBefore,action)
-			).toEqual(stateAfter);
+		const render = () => {
+			ReactDOM.render(
+				<TodoApp 
+					todos={store.getState().todos}
+				/>,
+				document.getElementById('root')
+				);
 		};
 
-		testAddTodo();
-		testToggleToso();
-		console.log('all tests pressed');
-
-
-		const combineReducer = (reducers)=> {
-			return ( state = {} , action) => {
-				return Object.keys(reducers).reduce(
-					(nextState, key) => {
-					nextState[key] = reducers[key](
-						stare[key],
-						action
-						);
-					return nextState;
-				},
-				{}
-				);	
-			};
-		};
-    </script>
+		store.subscribe(render);
+		render();
+		</script>
   </body>
 </html>
